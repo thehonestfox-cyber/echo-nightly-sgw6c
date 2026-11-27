@@ -81,6 +81,29 @@ jobs:
           sha256sum out/*.apk > out/SHA256SUMS.txt
           cat out/SHA256SUMS.txt
 
+      - name: APK info
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          AAPT2=$(ls -d "${ANDROID_SDK_ROOT:-$ANDROID_HOME}"/build-tools/*/aapt2 | sort -V | tail -n 1)
+          {
+            for apk in out/echo-wear-nightly.apk out/echo-wear-debug.apk; do
+              echo "## $(basename "$apk") ($(du -h "$apk" | cut -f1))"
+              echo '```'
+              "$AAPT2" dump badging "$apk" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:|uses-feature|native-code|launchable-activity)" | cut -c1-300
+              echo '```'
+            done
+            echo
+            echo '```'
+            cat out/SHA256SUMS.txt
+            echo '```'
+          } > out/apk-info.md
+          cat out/apk-info.md >> "$GITHUB_STEP_SUMMARY"
+          gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" \
+            -f body="$(printf '### Build OK on `%s`\n\n%s' "${GITHUB_SHA::7}" "$(cat out/apk-info.md)")" >/dev/null || true
+
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
@@ -108,5 +131,5 @@ jobs:
           Installazione sul Galaxy Watch 6 Classic: \`adb connect <ip-orologio>:5555 && adb install -r echo-wear-nightly.apk\`"
           # Re-create the release so that the tag moves to the current commit.
           gh release delete "$TAG" --yes --cleanup-tag || true
-          gh release create "$TAG" out/echo-wear-nightly.apk out/echo-wear-debug.apk out/SHA256SUMS.txt \
+          gh release create "$TAG" out/echo-wear-nightly.apk out/echo-wear-debug.apk out/SHA256SUMS.txt out/apk-info.md \
             --title "$TITLE" --notes "$NOTES" --prerelease --target "$GITHUB_SHA"
