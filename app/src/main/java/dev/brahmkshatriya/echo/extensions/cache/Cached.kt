@@ -39,7 +39,8 @@ import kotlinx.coroutines.coroutineScope
 object Cached {
     class NotFound(id: String) : Exception("Cache not found for $id")
 
-    private const val FOLDER = "media"
+    @PublishedApi
+    internal const val FOLDER = "media"
 
     suspend inline fun <reified T : EchoMediaItem> getMedia(
         app: App, extensionId: String, itemId: String,

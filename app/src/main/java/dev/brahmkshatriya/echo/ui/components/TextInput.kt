@@ -2,14 +2,13 @@ package dev.brahmkshatriya.echo.ui.components
 
 import android.app.RemoteInput
 import android.content.Intent
-import android.view.inputmethod.EditorInfo
+import android.os.Bundle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.wear.input.RemoteInputIntentHelper
-import androidx.wear.input.wearableExtender
 
 /**
  * Wear OS has no inline keyboard in Compose: text is entered through the system
@@ -32,12 +31,15 @@ fun rememberTextInput(
     val launch: (String?) -> Unit = remember(label) {
         { initial: String? ->
             val intent: Intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
+            // Same extras `androidx.wear.input.wearableExtender` (wear-input 1.2) would add:
+            // hide the emoji-only option and show a "done" action instead of "send".
+            val extras = Bundle().apply {
+                putBoolean("android.support.wearable.input.extra.DISALLOW_EMOJI", true)
+                putInt("android.support.wearable.input.extra.INPUT_ACTION_TYPE", 2) // done
+            }
             val remoteInput = RemoteInput.Builder(KEY)
                 .setLabel(label)
-                .wearableExtender {
-                    setEmojisAllowed(false)
-                    setInputActionType(EditorInfo.IME_ACTION_DONE)
-                }
+                .addExtras(extras)
                 .build()
             RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(remoteInput))
             RemoteInputIntentHelper.putTitleExtra(intent, label)

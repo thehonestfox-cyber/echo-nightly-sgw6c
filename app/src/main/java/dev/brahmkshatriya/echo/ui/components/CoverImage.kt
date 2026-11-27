@@ -22,7 +22,12 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import coil3.compose.AsyncImage
 import dev.brahmkshatriya.echo.R
+import dev.brahmkshatriya.echo.common.models.Album
+import dev.brahmkshatriya.echo.common.models.Artist
 import dev.brahmkshatriya.echo.common.models.EchoMediaItem
+import dev.brahmkshatriya.echo.common.models.Playlist
+import dev.brahmkshatriya.echo.common.models.Radio
+import dev.brahmkshatriya.echo.common.models.Track
 import dev.brahmkshatriya.echo.common.models.ImageHolder
 import dev.brahmkshatriya.echo.utils.image.ImageUtils.createRequest
 
@@ -79,12 +84,12 @@ fun FullBleedCover(cover: ImageHolder?, modifier: Modifier = Modifier, alpha: Fl
 }
 
 fun EchoMediaItem.placeholder() = when (this) {
-    is EchoMediaItem.Artist -> R.drawable.ic_artist
-    is EchoMediaItem.Album -> R.drawable.ic_album
-    is EchoMediaItem.Playlist -> R.drawable.ic_playlist
-    is EchoMediaItem.Radio -> R.drawable.ic_radio
-    is EchoMediaItem.Track -> R.drawable.ic_music
+    is Artist -> R.drawable.ic_artist
+    is Album -> R.drawable.ic_album
+    is Playlist -> R.drawable.ic_playlist
+    is Radio -> R.drawable.ic_radio
+    is Track -> R.drawable.ic_music
 }
 
 fun EchoMediaItem.coverShape(): Shape =
-    if (this is EchoMediaItem.Artist) CircleShape else RoundedCornerShape(8.dp)
+    if (this is Artist) CircleShape else RoundedCornerShape(8.dp)

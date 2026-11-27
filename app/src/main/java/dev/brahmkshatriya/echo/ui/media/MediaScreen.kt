@@ -27,6 +27,7 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import dev.brahmkshatriya.echo.R
+import dev.brahmkshatriya.echo.common.models.Artist
 import dev.brahmkshatriya.echo.common.models.EchoMediaItem
 import dev.brahmkshatriya.echo.common.models.Feed
 import dev.brahmkshatriya.echo.common.models.Shelf
@@ -133,7 +134,7 @@ fun MediaScreen(
                 Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                val playable = media !is EchoMediaItem.Artist || state.tracks.isNotEmpty()
+                val playable = media !is Artist || state.tracks.isNotEmpty()
                 if (playable) Button(
                     onClick = {
                         if (media is Track) playerViewModel.playTracks(extensionId, listOf(media))
