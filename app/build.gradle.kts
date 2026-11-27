@@ -26,14 +26,6 @@ android {
         versionName = "v${version}_$gitHash($gitCount)-wear"
     }
 
-    signingConfigs {
-        // Nightly builds are signed with the debug key so the APK can be side-loaded on the
-        // watch with `adb install` without any extra setup.
-        create("nightly") {
-            initWith(getByName("debug"))
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -46,7 +38,9 @@ android {
         create("nightly") {
             initWith(getByName("release"))
             applicationIdSuffix = ".nightly"
-            signingConfig = signingConfigs.getByName("nightly")
+            // Signed with the debug key so the APK can be side-loaded on the watch with
+            // `adb install` without any extra setup.
+            signingConfig = signingConfigs.getByName("debug")
             resValue("string", "app_name", "Echo Nightly")
         }
         debug {

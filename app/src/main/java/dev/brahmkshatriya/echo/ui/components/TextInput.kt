@@ -2,6 +2,7 @@ package dev.brahmkshatriya.echo.ui.components
 
 import android.app.RemoteInput
 import android.content.Intent
+import android.view.inputmethod.EditorInfo
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -28,14 +29,14 @@ fun rememberTextInput(
             ?.getCharSequence(KEY)?.toString() ?: return@rememberLauncherForActivityResult
         callback.value(text)
     }
-    return remember(label) {
+    val launch: (String?) -> Unit = remember(label) {
         { initial: String? ->
             val intent: Intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
             val remoteInput = RemoteInput.Builder(KEY)
                 .setLabel(label)
                 .wearableExtender {
                     setEmojisAllowed(false)
-                    setInputActionType(android.view.inputmethod.EditorInfo.IME_ACTION_DONE)
+                    setInputActionType(EditorInfo.IME_ACTION_DONE)
                 }
                 .build()
             RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(remoteInput))
@@ -43,8 +44,10 @@ fun rememberTextInput(
             if (!initial.isNullOrBlank())
                 RemoteInputIntentHelper.putSmartReplyContextExtra(intent, listOf(initial))
             runCatching { launcher.launch(intent) }
+            Unit
         }
     }
+    return launch
 }
 
 private const val KEY = "echo_text_input"

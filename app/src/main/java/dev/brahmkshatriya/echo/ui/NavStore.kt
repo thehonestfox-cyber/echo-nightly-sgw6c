@@ -15,7 +15,7 @@ object NavStore {
     fun put(value: Any): String {
         val key = counter.incrementAndGet().toString()
         map[key] = value
-        if (map.size > 64) map.keys.sortedBy { it.toLong() }.take(map.size - 64).forEach(map::remove)
+        if (map.size > 64) map.keys.sortedBy { it.toLong() }.take(map.size - 64).forEach { map.remove(it) }
         return key
     }
 
