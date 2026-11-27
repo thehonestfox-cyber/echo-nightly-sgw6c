@@ -143,4 +143,9 @@
         <item quantity="many">%1$d Elementi</item>
         <item quantity="other">%1$d Elementi</item>
     </plurals>
+    <string name="crash_title">Echo si è arrestato</string>
+    <string name="crash_hint">Il report è salvato anche in Android/data/%1$s/files/crash/last_crash.txt</string>
+    <string name="crash_empty">Nessun report di crash disponibile</string>
+    <string name="last_crash">Ultimo crash</string>
+    <string name="last_crash_summary">Mostra i dettagli dell\'ultimo arresto anomalo</string>
 </resources>

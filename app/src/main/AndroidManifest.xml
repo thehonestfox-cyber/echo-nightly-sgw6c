@@ -53,6 +53,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Crash reporter: separate process so it survives whatever crashed the app. -->
+        <activity
+            android:name=".ui.CrashActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:process=":crash"
+            android:taskAffinity="dev.brahmkshatriya.echo.wear.crash"
+            android:theme="@style/Theme.EchoWear" />
+
         <service
             android:name=".playback.PlayerService"
             android:exported="true"

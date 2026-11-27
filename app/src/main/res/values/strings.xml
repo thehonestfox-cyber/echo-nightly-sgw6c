@@ -144,4 +144,9 @@
         <item quantity="one">%1$d Item</item>
         <item quantity="other">%1$d Items</item>
     </plurals>
+    <string name="crash_title">Echo crashed</string>
+    <string name="crash_hint">The report is also saved in Android/data/%1$s/files/crash/last_crash.txt</string>
+    <string name="crash_empty">No crash report available</string>
+    <string name="last_crash">Last crash report</string>
+    <string name="last_crash_summary">Show the details of the last crash</string>
 </resources>

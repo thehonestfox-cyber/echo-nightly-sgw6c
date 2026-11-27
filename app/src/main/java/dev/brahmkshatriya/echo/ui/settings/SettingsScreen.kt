@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -23,8 +25,10 @@ import dev.brahmkshatriya.echo.BuildConfig
 import dev.brahmkshatriya.echo.R
 import dev.brahmkshatriya.echo.playback.PlayerService
 import dev.brahmkshatriya.echo.playback.listener.PlayerRadio
+import dev.brahmkshatriya.echo.ui.CrashActivity
 import dev.brahmkshatriya.echo.ui.components.ListScreen
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
+import dev.brahmkshatriya.echo.utils.CrashHandler
 import org.koin.compose.viewmodel.koinActivityViewModel
 
 @Composable
@@ -33,7 +37,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinActivityViewModel(),
 ) {
     // Re-read preferences whenever one changes.
-    @Suppress("UNUSED_VARIABLE") val revision by viewModel.revision.collectAsStateWithLifecycle()
+    val revision by viewModel.revision.collectAsStateWithLifecycle()
     val prefs = viewModel.prefs
 
     ListScreen {
@@ -111,6 +115,23 @@ fun SettingsScreen(
                 secondaryLabel = {
                     Text(
                         "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TYPE})",
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                }
+            )
+        }
+        item {
+            val context = LocalContext.current
+            val lastCrash = remember(revision) { CrashHandler.lastCrash(context) }
+            if (lastCrash != null) Chip(
+                onClick = { context.startActivity(CrashActivity.intent(context, lastCrash)) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ChipDefaults.secondaryChipColors(),
+                icon = { Icon(painterResource(R.drawable.ic_error), null) },
+                label = { Text(stringResource(R.string.last_crash)) },
+                secondaryLabel = {
+                    Text(
+                        stringResource(R.string.last_crash_summary),
                         maxLines = 1, overflow = TextOverflow.Ellipsis
                     )
                 }

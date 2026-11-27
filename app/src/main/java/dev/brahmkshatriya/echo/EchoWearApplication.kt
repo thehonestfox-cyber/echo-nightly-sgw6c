@@ -13,6 +13,7 @@ import dev.brahmkshatriya.echo.di.App
 import dev.brahmkshatriya.echo.di.DI
 import dev.brahmkshatriya.echo.extensions.ExtensionLoader
 import dev.brahmkshatriya.echo.utils.ContextUtils.cleanupTempApks
+import dev.brahmkshatriya.echo.utils.CrashHandler
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -22,6 +23,9 @@ class EchoWearApplication : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        // The crash reporter runs in its own `:crash` process: nothing else must start there.
+        if (!isMainProcess()) return
+        CrashHandler.install(this)
         startKoin {
             androidLogger()
             androidContext(this@EchoWearApplication)
@@ -31,6 +35,11 @@ class EchoWearApplication : Application(), SingletonImageLoader.Factory {
         get<App>()
         get<ExtensionLoader>()
         cleanupTempApks()
+    }
+
+    private fun isMainProcess(): Boolean {
+        val name = runCatching { getProcessName() }.getOrNull() ?: return true
+        return name == packageName
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader =
