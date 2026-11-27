@@ -75,17 +75,41 @@ screen_size() {
   adb shell wm size | tr -d '\r' | sed -n 's/.*: *\([0-9]*\)x\([0-9]*\).*/\1 \2/p' | tail -n 1
 }
 
+# Scroll gestures stay within 35 %..75 % of the screen height: swiping from the top edge opens the
+# Wear OS quick settings shade and swiping from the bottom edge opens the notification stream.
+scroll_down() {
+  local size w h
+  size=$(screen_size); w=${size% *}; h=${size#* }
+  adb shell input swipe $((w / 2)) $((h * 3 / 4)) $((w / 2)) $((h * 35 / 100)) 300
+}
+
+scroll_up() {
+  local size w h
+  size=$(screen_size); w=${size% *}; h=${size#* }
+  adb shell input swipe $((w / 2)) $((h * 35 / 100)) $((w / 2)) $((h * 3 / 4)) 300
+}
+
+# Close the quick settings shade / notification stream if a stray gesture opened them
+# (inspects the last UI dump).
+dismiss_system_ui() {
+  [ -n "$(node_coords "Quick Settings|return to watch face|^No notifications$")" ] || return 1
+  echo "$(date +%T) system UI overlay detected, pressing back" >> "$OUT/uiautomator.log"
+  adb shell input keyevent KEYCODE_BACK; sleep 1
+  return 0
+}
+
 # Scroll the list until a node matching the pattern is visible, then tap it.
 find_and_tap() {
-  local pattern="$1" size w h i
-  size=$(screen_size); w=${size% *}; h=${size#* }
-  for i in 1 2 3 4 5; do
+  local pattern="$1" i
+  for i in 1 2 3 4 5 6; do
     tap_text "$pattern" && return 0
-    adb shell input swipe $((w / 2)) $((h * 3 / 4)) $((w / 2)) $((h / 4)) 300; sleep 1
+    dismiss_system_ui && continue
+    scroll_down; sleep 1
   done
-  for i in 1 2 3 4 5 6 7 8 9 10; do
+  for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
     tap_text "$pattern" && return 0
-    adb shell input swipe $((w / 2)) $((h / 4)) $((w / 2)) $((h * 3 / 4)) 300; sleep 1
+    dismiss_system_ui && continue
+    scroll_up; sleep 1
   done
   return 1
 }
@@ -94,13 +118,12 @@ find_and_tap() {
 swipe_back() {
   local size w h
   size=$(screen_size); w=${size% *}; h=${size#* }
-  adb shell input swipe 5 $((h / 2)) $((w - 10)) $((h / 2)) 300
+  adb shell input swipe 12 $((h / 2)) $((w - 12)) $((h / 2)) 500
 }
 
 scroll_top() {
-  local size w h i
-  size=$(screen_size); w=${size% *}; h=${size#* }
-  for i in 1 2 3 4; do adb shell input swipe $((w / 2)) $((h / 4)) $((w / 2)) $((h * 3 / 4)) 200; done
+  local i
+  for i in 1 2 3 4 5; do scroll_up; done
   sleep 1
 }
 
@@ -196,6 +219,27 @@ test_apk() {
   local app_pid
   app_pid=$(adb shell pidof "$pkg" | tr -d '\r' | awk '{print $1}')
   check_step "$pkg" "$label" "launch (16 s)" || failed=1
+
+  # Wait until the home screen is actually drawn (first start on a cold emulator can be slow).
+  if [ "$failed" = 0 ]; then
+    local waited=0 drawn=0
+    while [ "$waited" -lt 45 ]; do
+      if has_text "^Now playing$"; then drawn=1; break; fi
+      dismiss_system_ui || true
+      sleep 5; waited=$((waited + 5))
+    done
+    if [ "$drawn" = 1 ]; then
+      echo "- ✅ home screen drawn (after ${waited}s more)" >> "$REPORT"
+    else
+      screenshot "$label-home-not-drawn"
+      if alive "$pkg"; then
+        echo "- ❌ **home screen not drawn within 60 s** (visible texts: $(visible_texts); uiautomator: $(tail -n 1 "$OUT/uiautomator.log" 2>/dev/null))" >> "$REPORT"
+      else
+        echo "- ❌ **home screen not drawn**: process died" >> "$REPORT"
+      fi
+      failed=1
+    fi
+  fi
 
   if [ "$failed" = 0 ]; then
     # Home -> Extensions -> back
