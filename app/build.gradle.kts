@@ -42,6 +42,8 @@ android {
             // `adb install` without any extra setup.
             signingConfig = signingConfigs.getByName("debug")
             resValue("string", "app_name", "Echo Nightly")
+            // `:common` only declares debug/release, so resolve it as `release`.
+            matchingFallbacks += listOf("release")
         }
         debug {
             applicationIdSuffix = ".debug"
