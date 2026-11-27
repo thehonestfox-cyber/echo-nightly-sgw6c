@@ -92,7 +92,7 @@ jobs:
             for apk in out/echo-wear-nightly.apk out/echo-wear-debug.apk; do
               echo "## $(basename "$apk") ($(du -h "$apk" | cut -f1))"
               echo '```'
-              "$AAPT2" dump badging "$apk" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:|uses-feature|native-code|launchable-activity)" | cut -c1-300
+              "$AAPT2" dump badging "$apk" | grep -E "^(package|minSdkVersion|sdkVersion|targetSdkVersion|application-label:|feature-group|  uses-feature|native-code|launchable-activity)" | cut -c1-300
               echo '```'
             done
             echo
