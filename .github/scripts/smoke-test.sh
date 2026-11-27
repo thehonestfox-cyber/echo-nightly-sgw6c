@@ -14,6 +14,12 @@ mkdir -p "$OUT"
 : > "$REPORT"
 
 adb wait-for-device
+# Keep the display on: after the screen timeout the Wear OS emulator switches to the (ambient)
+# watch face and the app under test is no longer in the foreground.
+adb shell svc power stayon true >/dev/null 2>&1 || true
+adb shell settings put system screen_off_timeout 1800000 >/dev/null 2>&1 || true
+adb shell settings put secure doze_always_on 0 >/dev/null 2>&1 || true
+adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true
 adb shell wm dismiss-keyguard >/dev/null 2>&1 || true
 adb shell settings put global window_animation_scale 0 >/dev/null 2>&1 || true
 adb shell settings put global transition_animation_scale 0 >/dev/null 2>&1 || true
@@ -69,6 +75,20 @@ tap_text() {
 has_text() {
   dump_ui || return 1
   [ -n "$(node_coords "$1")" ]
+}
+
+wake_screen() {
+  adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true
+  adb shell wm dismiss-keyguard >/dev/null 2>&1 || true
+  sleep 1
+}
+
+# Resumed activity + display state, for diagnostics.
+foreground_activity() {
+  {
+    adb shell dumpsys activity activities 2>/dev/null | grep -E -m 1 "topResumedActivity|mResumedActivity|ResumedActivity:" | sed 's/^ *//'
+    adb shell dumpsys power 2>/dev/null | grep -E -m 1 "mWakefulness=|Display Power: state="
+  } | tr -d '\r' | tr '\n' ' '
 }
 
 screen_size() {
@@ -214,6 +234,7 @@ test_apk() {
   echo "- ✅ install" >> "$REPORT"
 
   adb logcat -c
+  wake_screen
   adb shell am start -W -n "$pkg/$ACTIVITY" > "$OUT/start-$label.txt" 2>&1
   sleep 12
   local app_pid
@@ -222,10 +243,19 @@ test_apk() {
 
   # Wait until the home screen is actually drawn (first start on a cold emulator can be slow).
   if [ "$failed" = 0 ]; then
-    local waited=0 drawn=0
+    local waited=0 drawn=0 brought_back=0
     while [ "$waited" -lt 45 ]; do
       if has_text "^Now playing$"; then drawn=1; break; fi
       dismiss_system_ui || true
+      # If the activity is alive but not in front (e.g. watch face shown), bring it back once.
+      if [ "$brought_back" = 0 ] && [ "$waited" -ge 10 ] && alive "$pkg" &&
+         ! foreground_activity | grep -q "$pkg"; then
+        echo "- ⚠️ app not in the foreground ${waited}s after launch (foreground: $(foreground_activity)); bringing it back" >> "$REPORT"
+        screenshot "$label-not-foreground"
+        wake_screen
+        adb shell am start -n "$pkg/$ACTIVITY" >/dev/null 2>&1
+        brought_back=1
+      fi
       sleep 5; waited=$((waited + 5))
     done
     if [ "$drawn" = 1 ]; then
@@ -233,7 +263,7 @@ test_apk() {
     else
       screenshot "$label-home-not-drawn"
       if alive "$pkg"; then
-        echo "- ❌ **home screen not drawn within 60 s** (visible texts: $(visible_texts); uiautomator: $(tail -n 1 "$OUT/uiautomator.log" 2>/dev/null))" >> "$REPORT"
+        echo "- ❌ **home screen not drawn within 60 s** (visible texts: $(visible_texts); uiautomator: $(tail -n 1 "$OUT/uiautomator.log" 2>/dev/null); foreground: $(foreground_activity); am start: $(grep -E "Status|LaunchState|Error|Warning" "$OUT/start-$label.txt" | tr '\n' ' '))" >> "$REPORT"
       else
         echo "- ❌ **home screen not drawn**: process died" >> "$REPORT"
       fi
@@ -263,6 +293,7 @@ test_apk() {
     # Background the app and bring it back
     if [ "$failed" = 0 ]; then
       adb shell input keyevent KEYCODE_HOME; sleep 2
+      wake_screen
       adb shell am start -n "$pkg/$ACTIVITY" >/dev/null 2>&1
       check_step "$pkg" "$label" "relaunch" || failed=1
     fi
