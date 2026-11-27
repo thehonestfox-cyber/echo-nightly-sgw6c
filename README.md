@@ -53,8 +53,16 @@ Gli APK vengono generati in `app/build/outputs/apk/<buildType>/`.
 
 ### GitHub Actions
 
-Il workflow [`wear-build.yml`](.github/workflows/wear-build.yml) compila gli APK a ogni push e li
-pubblica come artifact **`echo-wear-apk`** (`echo-wear-debug.apk`, `echo-wear-nightly.apk`).
+Il workflow [`wear-build.yml`](.github/workflows/wear-build.yml) compila gli APK a ogni push e:
+
+- li pubblica come artifact **`echo-wear-apk`** (`echo-wear-debug.apk`, `echo-wear-nightly.apk`,
+  `SHA256SUMS.txt`) nella pagina del run di GitHub Actions;
+- aggiorna la pre-release **`nightly`** nella sezione *Releases* del repository, da cui gli APK si
+  possono scaricare direttamente (anche senza login GitHub). Il tag `nightly` punta sempre
+  all'ultima build riuscita.
+
+Se la compilazione fallisce, il workflow riassume gli errori nel *job summary* e in un commento sul
+commit, e carica il log completo come artifact `build-log`.
 
 ## Installazione sul Galaxy Watch 6 Classic
 
@@ -65,7 +73,7 @@ pubblica come artifact **`echo-wear-apk`** (`echo-wear-debug.apk`, `echo-wear-ni
    adb pair <ip-orologio>:<porta-pairing>   # codice mostrato dall'orologio
    adb connect <ip-orologio>:5555
    ```
-3. Installa l'APK scaricato dagli artifact di GitHub Actions:
+3. Installa l'APK scaricato dalla release `nightly` (o dagli artifact di GitHub Actions):
    ```bash
    adb install -r echo-wear-nightly.apk
    ```

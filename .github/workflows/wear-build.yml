@@ -88,3 +88,25 @@ jobs:
           path: out/*
           if-no-files-found: error
           retention-days: 30
+
+      # Rolling pre-release so the APKs can be downloaded without a GitHub login
+      # (Actions artifacts require one). The `nightly` tag always points at the last green build.
+      - name: Publish nightly pre-release
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="nightly"
+          TITLE="Echo Wear nightly $(date -u +%Y-%m-%d) (${GITHUB_SHA::7})"
+          NOTES="Build automatica di \`${GITHUB_REF_NAME}\` @ ${GITHUB_SHA::7} ($(date -u +'%Y-%m-%d %H:%M UTC')).
+
+          - \`echo-wear-nightly.apk\`: build ottimizzata (R8), firmata con la chiave debug
+          - \`echo-wear-debug.apk\`: build di debug
+          - \`SHA256SUMS.txt\`: checksum
+
+          Installazione sul Galaxy Watch 6 Classic: \`adb connect <ip-orologio>:5555 && adb install -r echo-wear-nightly.apk\`"
+          # Re-create the release so that the tag moves to the current commit.
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" out/echo-wear-nightly.apk out/echo-wear-debug.apk out/SHA256SUMS.txt \
+            --title "$TITLE" --notes "$NOTES" --prerelease --target "$GITHUB_SHA"
