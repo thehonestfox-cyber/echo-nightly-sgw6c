@@ -28,12 +28,12 @@ import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
 import dev.brahmkshatriya.echo.ui.components.rememberTextInput
 import dev.brahmkshatriya.echo.common.models.ImageHolder.Companion.toImageHolder
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 @Composable
 fun AddExtensionScreen(
     back: () -> Unit,
-    viewModel: ExtensionsViewModel = koinActivityViewModel(),
+    viewModel: ExtensionsViewModel = activityViewModel(),
 ) {
     val state by viewModel.addState.collectAsStateWithLifecycle()
     var link by remember { mutableStateOf("") }

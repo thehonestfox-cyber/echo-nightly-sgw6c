@@ -56,13 +56,13 @@ import dev.brahmkshatriya.echo.ui.components.FullBleedCover
 import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.toUserMessage
 import kotlinx.coroutines.delay
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 @Composable
 fun PlayerScreen(
     openQueue: () -> Unit,
     openTrack: (extensionId: String, track: Track) -> Unit,
-    viewModel: PlayerViewModel = koinActivityViewModel(),
+    viewModel: PlayerViewModel = activityViewModel(),
 ) {
     val controller by viewModel.controller.collectAsStateWithLifecycle()
     val mediaItem by viewModel.currentItem.collectAsStateWithLifecycle()

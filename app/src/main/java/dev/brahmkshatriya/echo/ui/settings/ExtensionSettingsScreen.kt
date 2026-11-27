@@ -36,13 +36,13 @@ import dev.brahmkshatriya.echo.ui.components.LoadingBox
 import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
 import dev.brahmkshatriya.echo.ui.components.rememberTextInput
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 @Composable
 fun ExtensionSettingsScreen(
     type: ExtensionType,
     id: String,
-    viewModel: SettingsViewModel = koinActivityViewModel(),
+    viewModel: SettingsViewModel = activityViewModel(),
 ) {
     val all by viewModel.extensionLoader.all.collectAsStateWithLifecycle()
     val extension = all.find { it.type == type && it.id == id }

@@ -45,7 +45,7 @@ import dev.brahmkshatriya.echo.ui.components.shelfItems
 import dev.brahmkshatriya.echo.ui.player.PlayerViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 data class MediaNavigation(
@@ -60,7 +60,7 @@ fun MediaScreen(
     item: EchoMediaItem,
     navigation: MediaNavigation,
     viewModel: MediaViewModel = koinViewModel(),
-    playerViewModel: PlayerViewModel = koinActivityViewModel(),
+    playerViewModel: PlayerViewModel = activityViewModel(),
 ) {
     LaunchedEffect(extensionId, item.id) { viewModel.load(extensionId, item) }
     val state by viewModel.state.collectAsStateWithLifecycle()

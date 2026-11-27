@@ -37,7 +37,7 @@ import dev.brahmkshatriya.echo.ui.components.ListScreen
 import dev.brahmkshatriya.echo.ui.components.LoadingBox
 import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 data class ExtensionNavigation(
     val openLogin: (ExtensionType, String) -> Unit,
@@ -50,7 +50,7 @@ fun ExtensionScreen(
     type: ExtensionType,
     id: String,
     navigation: ExtensionNavigation,
-    viewModel: ExtensionsViewModel = koinActivityViewModel(),
+    viewModel: ExtensionsViewModel = activityViewModel(),
 ) {
     val all by viewModel.all.collectAsStateWithLifecycle()
     val current by viewModel.current.collectAsStateWithLifecycle()

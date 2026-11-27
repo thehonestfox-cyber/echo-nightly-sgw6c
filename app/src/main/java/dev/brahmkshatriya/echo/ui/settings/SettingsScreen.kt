@@ -29,12 +29,12 @@ import dev.brahmkshatriya.echo.ui.CrashActivity
 import dev.brahmkshatriya.echo.ui.components.ListScreen
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
 import dev.brahmkshatriya.echo.utils.CrashHandler
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 @Composable
 fun SettingsScreen(
     openAbout: () -> Unit,
-    viewModel: SettingsViewModel = koinActivityViewModel(),
+    viewModel: SettingsViewModel = activityViewModel(),
 ) {
     // Re-read preferences whenever one changes.
     val revision by viewModel.revision.collectAsStateWithLifecycle()

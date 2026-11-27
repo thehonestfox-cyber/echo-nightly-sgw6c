@@ -57,12 +57,29 @@ Il workflow [`wear-build.yml`](.github/workflows/wear-build.yml) compila gli APK
 
 - li pubblica come artifact **`echo-wear-apk`** (`echo-wear-debug.apk`, `echo-wear-nightly.apk`,
   `SHA256SUMS.txt`) nella pagina del run di GitHub Actions;
-- aggiorna la pre-release **`nightly`** nella sezione *Releases* del repository, da cui gli APK si
-  possono scaricare direttamente (anche senza login GitHub). Il tag `nightly` punta sempre
-  all'ultima build riuscita.
+- li **avvia su un emulatore Wear OS** (API 34, profilo rotondo) nel job *smoke*: installa entrambi
+  gli APK, apre l'app, naviga tra Estensioni, Impostazioni e Now playing e controlla che il processo
+  non muoia e che non compaiano `FATAL EXCEPTION` nel logcat. Il report (con lo stack trace in caso
+  di crash), i logcat e gli screenshot sono nell'artifact **`smoke-test`** e in un commento sul
+  commit;
+- solo se lo smoke test passa, aggiorna la pre-release **`nightly`** nella sezione *Releases* del
+  repository, da cui gli APK si possono scaricare direttamente (anche senza login GitHub). Il tag
+  `nightly` punta quindi sempre all'ultima build che compila **e si avvia**.
 
 Se la compilazione fallisce, il workflow riassume gli errori nel *job summary* e in un commento sul
 commit, e carica il log completo come artifact `build-log`.
+
+### Diagnostica dei crash
+
+L'app installa un gestore delle eccezioni non catturate: in caso di crash mostra lo stack trace su
+schermo (`CrashActivity`, in un processo separato) e lo salva in
+`Android/data/<pacchetto>/files/crash/last_crash.txt` (leggibile anche da
+*Impostazioni → Ultimo crash*). Per recuperarlo via ADB:
+
+```bash
+adb pull /sdcard/Android/data/dev.brahmkshatriya.echo.wear.nightly/files/crash/last_crash.txt
+adb logcat -d -b crash        # in alternativa, il buffer dei crash di sistema
+```
 
 ## Installazione sul Galaxy Watch 6 Classic
 

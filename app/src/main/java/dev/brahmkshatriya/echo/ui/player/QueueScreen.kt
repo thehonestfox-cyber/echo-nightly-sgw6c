@@ -24,12 +24,12 @@ import dev.brahmkshatriya.echo.ui.components.LoadingBox
 import dev.brahmkshatriya.echo.ui.components.MediaItemChip
 import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 @Composable
 fun QueueScreen(
     openTrack: (extensionId: String, track: Track) -> Unit,
-    viewModel: PlayerViewModel = koinActivityViewModel(),
+    viewModel: PlayerViewModel = activityViewModel(),
 ) {
     val queue by viewModel.queue.collectAsStateWithLifecycle()
     val currentIndex by viewModel.currentIndex.collectAsStateWithLifecycle()

@@ -41,7 +41,7 @@ import dev.brahmkshatriya.echo.ui.components.shelfItems
 import dev.brahmkshatriya.echo.ui.player.PlayerViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Callbacks a feed needs from the navigation host. */
@@ -58,7 +58,7 @@ fun FeedScreen(
     title: String? = null,
     customFeed: Feed<Shelf>? = null,
     viewModel: FeedViewModel = koinViewModel(),
-    playerViewModel: PlayerViewModel = koinActivityViewModel(),
+    playerViewModel: PlayerViewModel = activityViewModel(),
 ) {
     LaunchedEffect(type, customFeed) {
         if (type == FeedViewModel.Type.Custom) viewModel.setCustomFeed(customFeed)

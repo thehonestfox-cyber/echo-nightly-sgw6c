@@ -28,7 +28,7 @@ import dev.brahmkshatriya.echo.ui.components.CoverImage
 import dev.brahmkshatriya.echo.ui.components.ListScreen
 import dev.brahmkshatriya.echo.ui.components.MessageBox
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 data class ExtensionsNavigation(
     val openExtension: (ExtensionType, String) -> Unit,
@@ -39,7 +39,7 @@ data class ExtensionsNavigation(
 @Composable
 fun ExtensionsScreen(
     navigation: ExtensionsNavigation,
-    viewModel: ExtensionsViewModel = koinActivityViewModel(),
+    viewModel: ExtensionsViewModel = activityViewModel(),
 ) {
     val all by viewModel.all.collectAsStateWithLifecycle()
     val current by viewModel.current.collectAsStateWithLifecycle()

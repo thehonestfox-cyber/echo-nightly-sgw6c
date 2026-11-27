@@ -17,7 +17,7 @@ import dev.brahmkshatriya.echo.ui.components.CoverImage
 import dev.brahmkshatriya.echo.ui.components.ListScreen
 import dev.brahmkshatriya.echo.ui.components.SectionHeader
 import dev.brahmkshatriya.echo.ui.player.PlayerViewModel
-import org.koin.compose.viewmodel.koinActivityViewModel
+import dev.brahmkshatriya.echo.ui.components.activityViewModel
 
 data class HomeNavigation(
     val openHomeFeed: () -> Unit,
@@ -31,7 +31,7 @@ data class HomeNavigation(
 @Composable
 fun HomeScreen(
     navigation: HomeNavigation,
-    playerViewModel: PlayerViewModel = koinActivityViewModel(),
+    playerViewModel: PlayerViewModel = activityViewModel(),
 ) {
     val current by playerViewModel.extensions.current.collectAsStateWithLifecycle()
     val mediaItem by playerViewModel.currentItem.collectAsStateWithLifecycle()
