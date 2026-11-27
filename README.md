@@ -10,6 +10,15 @@ interamente sull'orologio.
 > Questo progetto riusa il codice del player, del sistema di estensioni e il modulo `common` di
 > Echo. L'interfaccia è stata riscritta da zero con **Wear Compose Material**. Licenza: GPL-3.0.
 
+**Versione di Echo di riferimento:** `brahmkshatriya/echo` branch `main` al commit
+[`f210820`](https://github.com/brahmkshatriya/echo/commit/f210820) (16 marzo 2026, schema di
+versione upstream `3.0.x`) — lo stesso codice pubblicato dalle nightly ufficiali di
+[itsmechinmoy/echo-nightly](https://github.com/itsmechinmoy/echo-nightly). Il modulo `common/`
+(API delle estensioni) è identico a upstream, quindi le estensioni funzionano senza modifiche.
+Le build "Echo 4.x Expressive" / "5.0 Fluid" di TheWinner02 sono un fork con UI Material 3
+Expressive per telefono distribuito solo come APK (sorgenti non pubblicati): non sono usate qui
+e, trattandosi di sola interfaccia, non avrebbero senso su un orologio.
+
 ## Funzionalità
 
 - **Estensioni Echo** (stesso formato `.eapk`/APK del telefono): installazione da link o codice di
