@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./gradlew :app:assembleDebug :app:assembleNightly --no-daemon --console=plain 2>&1 | tee build.log
+          ./gradlew :app:assembleDebug :app:assembleNightly --continue --no-daemon --console=plain 2>&1 | tee build.log
 
       - name: Report build errors
         if: failure()
