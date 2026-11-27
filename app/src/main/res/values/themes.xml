@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.EchoWear" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:colorPrimary">@color/app_color</item>
+        <item name="android:colorAccent">@color/app_color</item>
+    </style>
+</resources>
